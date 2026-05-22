@@ -142,6 +142,11 @@
     color: #e0876b;
     border-left-color: var(--accent);
   }
+  .knowledge-item {
+    color: var(--accent) !important;
+    font-weight: 500;
+  }
+  .knowledge-item::before { display: none; }
   .recent-case {
     font-size: 11px;
     padding: 6px 0;
@@ -490,6 +495,7 @@
         <div class="skill-item" data-cmd="/baseball">/baseball</div>
         <div class="skill-item" data-cmd="/tools">/tools</div>
         <div class="skill-item" data-cmd="/loganalyse">/loganalyse</div>
+        <div class="skill-item" data-cmd="/knowledge">/knowledge</div>
         <div class="skill-item" data-cmd="/hardware">/hardware</div>
         <div class="skill-item" data-cmd="/filldevops">/filldevops</div>
         <div class="skill-item" data-cmd="/knownbug">/knownbug</div>
@@ -500,10 +506,12 @@
       <div class="vault-label">Topics &amp; subcategories</div>
       <div class="vault-tree">
         <div class="vault-folder"><span class="vault-folder-icon">▾</span>Baseball</div>
+        <div class="vault-item knowledge-item">📚 knowledge.md</div>
         <div class="vault-item">b1-portable-unit.md</div>
         <div class="vault-item">v3-stadium-backfield.md</div>
         <div class="vault-item">data-delivery.md</div>
         <div class="vault-folder"><span class="vault-folder-icon">▾</span>Golf</div>
+        <div class="vault-item knowledge-item">📚 knowledge.md</div>
         <div class="vault-item">tps.md</div>
         <div class="vault-item">tm4.md</div>
         <div class="vault-item">tmio.md</div>
@@ -511,10 +519,12 @@
         <div class="vault-item">ids-cam.md</div>
         <div class="vault-item">econ-cam.md</div>
         <div class="vault-folder"><span class="vault-folder-icon">▾</span>Range</div>
+        <div class="vault-item knowledge-item">📚 knowledge.md</div>
         <div class="vault-item">screen.md</div>
         <div class="vault-item">radar.md</div>
         <div class="vault-item">connectivity.md</div>
         <div class="vault-folder"><span class="vault-folder-icon">▾</span>Tools</div>
+        <div class="vault-item knowledge-item">📚 knowledge.md</div>
         <div class="vault-item">booking-payment.md</div>
         <div class="vault-item">tm-portal.md</div>
         <div class="vault-folder"><span class="vault-folder-icon">▸</span>Hardware (customer PC)</div>
@@ -556,12 +566,13 @@
     <div class="messages" id="messages">
       <div class="message">
         <div class="message-role">Claude</div>
-        <div class="message-content">Hey — Support Vault T2 is loaded over Obsidian MCP. I can run T2 diagnostic skills against the vault, search past analyses, or fill DevOps escalation templates straight from a log.
+        <div class="message-content">Hey — Support Vault T2 is loaded over Obsidian MCP. I can run T2 diagnostic skills against the vault, search past analyses, fill DevOps escalation templates from logs, and query the knowledge layer that auto-grows from every solved ticket.
 
 Try a slash command from the left, or just ask me something in plain language.</div>
         <div class="quick-chips">
           <div class="chip" data-prompt="/range">/range</div>
           <div class="chip" data-prompt="/loganalyse">/loganalyse</div>
+          <div class="chip" data-prompt="/knowledge">/knowledge</div>
           <div class="chip" data-prompt="Have we seen radar misfire after FW 3.2.1 before?">Have we seen radar misfire after FW 3.2.1?</div>
           <div class="chip" data-prompt="/knownbug">/knownbug</div>
         </div>
@@ -587,6 +598,7 @@ const commands = [
   { name: '/baseball', desc: 'Baseball scope — narrows to B1 Portable, V3 Stadium, Data/Delivery' },
   { name: '/tools', desc: 'Tools scope — narrows to Booking & Payment, TM Portal' },
   { name: '/loganalyse', desc: 'Golf log analysis — TPS, TM4, TMIO, Swingspeed/IDS/e-con cameras' },
+  { name: '/knowledge', desc: 'Knowledge layer — auto-aggregated fix rates from every solved ticket' },
   { name: '/hardware', desc: 'Customer PC setup — OS, drivers, USB, network' },
   { name: '/filldevops', desc: 'Auto-fill DevOps escalation template from attached log' },
   { name: '/knownbug', desc: 'Search ADO known-bug board for matching issues + workarounds' },
@@ -676,7 +688,9 @@ Open either case for full analysis, or refine the question.`
 **Vault matches:** <span class="tag tag-known">Known bug</span>
 Same fingerprint as case <code>#R-4419</code> (Anna, last week). Linked to <code>ADO-7732</code> — workaround: customer mirrors displays OR updates Intel display driver. Permanent fix: TPS 10.3.2.
 
-Want me to <code>/filldevops</code> with the version data?`
+Want me to <code>/filldevops</code> with the version data?
+
+<em style="color: var(--accent); font-size: 11px;">✓ Analysis logged to Golf/knowledge.md · TPS-10.3 fix rate now 10/12</em>`
   },
   'loganalyse-tm4': {
     initial: `TM4 log analysis — searching for radar patterns...
@@ -816,6 +830,117 @@ ADO and Zendesk are matched and followed automatically — every linked ticket h
 Ask in plain language — "Have we seen radar misfire after FW 3.2.1?", "USB power management cases this quarter", "TM4 connection issues with TPS 10.3" — and I'll find matching analyses with frequency counts.
 
 Or paste a log snippet and I'll match it against known patterns.`
+  },
+  '/knowledge': {
+    initial: `📚 **Knowledge layer** — auto-aggregated from every solved ticket. Fix rates, what worked, what didn't.
+
+Which area?
+
+1. **Golf** — TPS, TM4, TMIO, Swingspeed / IDS / e-con cameras
+2. **Range** — Screen, Radar, Connectivity
+3. **Baseball** — B1 Portable, V3 Stadium & Backfield, Data/Delivery
+4. **Tools** — Booking & Payment, TM Portal
+
+Or jump straight in: <code>/knowledge tps frozen</code>, <code>/knowledge range screen ghosting</code>, etc.`
+  },
+  'knowledge-golf': {
+    initial: `📚 **Golf · knowledge.md** — auto-aggregated from solved Golf tickets
+
+**Indexed:** 187 cases · 42 distinct issue patterns · last updated 2h ago
+
+**## TPS frozen on launch / mid-session**
+Confirmed fix rate: <strong>12 / 14 attempts (86%)</strong>
+✓ Re-flash TPS firmware via host app → <strong>8 / 8</strong>
+✓ Clear TPS cache (host app → Settings → Reset) → <strong>4 / 5</strong>
+✗ Reinstalling host app → 0 / 2 (does not resolve)
+Most recent: <code>#R-4419</code> · Anna · 3 days ago · linked <code>ADO-7732</code>
+
+**## TPS 10.3 — extended screen view goes black**
+Confirmed fix rate: <strong>9 / 11 attempts (82%)</strong>
+✓ Mirror displays instead of extend → <strong>5 / 5</strong>
+✓ Update Intel display driver to latest → <strong>4 / 5</strong>
+<code>ADO-7732</code> · permanent fix in TPS 10.3.2
+
+**## TM4 calibration drift after FW 3.2.1**
+Confirmed fix rate: <strong>7 / 7 attempts (100%)</strong>
+✓ Roll back FW to 3.2.0 via host app → <strong>7 / 7</strong>
+<code>ADO-7741</code> · permanent fix in FW 3.2.2
+
+**## IDS camera cold-start enumeration delay**
+Confirmed fix rate: <strong>5 / 5 attempts (100%)</strong>
+✓ Upgrade uEye driver to 4.97.1 → <strong>5 / 5</strong>
+Fix bundled in TPS 10.3.2
+
+Want me to expand any pattern or drill into a specific case?`
+  },
+  'knowledge-range': {
+    initial: `📚 **Range · knowledge.md** — auto-aggregated from solved Range tickets
+
+**Indexed:** 94 cases · 18 distinct issue patterns · last updated 1h ago
+
+**## Screen ghosting (Range Performance, sustained sessions)**
+Confirmed fix rate: <strong>14 / 17 attempts (82%)</strong>
+✓ Restart host app every 40 min during heavy use → <strong>14 / 14</strong>
+✗ Display driver update → 0 / 3 (panel rev B issue, not driver)
+<code>ADO-7689</code> · permanent fix in TPS 10.3.2
+
+**## Range bay dropping connection every 4h**
+Confirmed fix rate: <strong>9 / 9 attempts (100%)</strong>
+✓ Restart host app → reconnect within 5 sec
+<code>ADO-7677</code> · permanent fix in TPS 10.3.2
+
+**## Range radar drift after firmware update**
+Confirmed fix rate: <strong>11 / 12 attempts (92%)</strong>
+✓ Roll back to previous FW + recalibrate → <strong>11 / 11</strong>
+Use the firmware regression workflow from Range/radar.md
+
+**## "Screen replacement needed" (customer self-diagnosed)**
+60% software-recoverable per the triage tool. Point customers there first before escalating.
+
+Want me to expand any pattern?`
+  },
+  'knowledge-baseball': {
+    initial: `📚 **Baseball · knowledge.md** — auto-aggregated from solved Baseball tickets
+
+**Indexed:** 38 cases · 9 distinct issue patterns · last updated 4h ago
+
+**## B1 Portable — Bluetooth pairing fails**
+Confirmed fix rate: <strong>11 / 12 attempts (92%)</strong>
+✓ Clear host BT cache → re-pair → <strong>11 / 11</strong>
+Most recent: <code>#B-3204</code> · Anna · 5 days ago
+
+**## V3 Backfield — camera offset after physical bump**
+Confirmed fix rate: <strong>6 / 6 attempts (100%)</strong>
+✓ Run V3 calibration wizard from TPS → <strong>6 / 6</strong>
+
+**## Data delivery latency to client portal**
+Confirmed fix rate: <strong>4 / 5 attempts (80%)</strong>
+✓ Switch delivery endpoint to backup queue → <strong>4 / 4</strong>
+✗ Increase polling frequency → 0 / 1 (made it worse)
+
+Want me to expand any pattern?`
+  },
+  'knowledge-tools': {
+    initial: `📚 **Tools · knowledge.md** — auto-aggregated from solved Tools tickets
+
+**Indexed:** 62 cases · 14 distinct issue patterns · last updated 30 min ago
+
+**## Booking & Payment — Stripe intent stuck "requires_action"**
+Confirmed fix rate: <strong>9 / 9 attempts (100%)</strong>
+✓ Manual confirm via Stripe dashboard + re-poll from TM Portal → <strong>9 / 9</strong>
+Most recent: <code>#T-1842</code> · Mads · 1 week ago
+
+**## TM Portal — SSO login redirect loop**
+Confirmed fix rate: <strong>7 / 8 attempts (88%)</strong>
+✓ Enable 3rd-party cookies for *.trackman.com → <strong>7 / 7</strong>
+✗ Clear browser cache only → 0 / 1 (cookie policy is the actual blocker)
+
+**## Booking link returns 500 on weekends**
+Confirmed fix rate: <strong>3 / 3 attempts (100%)</strong>
+✓ Cron job re-runs Sunday 23:00 UTC → <strong>3 / 3</strong>
+Permanent fix queued in Tools v2.4
+
+Want me to expand any pattern?`
   },
   'range-screen': {
     initial: `Range screen — pulling the screen workflow from the vault.
@@ -1006,6 +1131,14 @@ function escapeHtml(s) {
 
 function detectCommand(text) {
   const lower = text.toLowerCase().trim();
+  // /knowledge with inline area = jump straight in
+  if (lower.startsWith('/knowledge')) {
+    if (lower.includes('golf') || lower.includes('tps') || lower.includes('tm4') || lower.includes('tmio') || lower.includes('swingspeed') || lower.includes('ids') || lower.includes('econ') || lower.includes('e-con')) return 'knowledge-golf';
+    if (lower.includes('range') || lower.includes('screen') || lower.includes('connectivity')) return 'knowledge-range';
+    if (lower.includes('baseball') || lower.includes('b1') || lower.includes('v3') || lower.includes('backfield')) return 'knowledge-baseball';
+    if (lower.includes('tool') || lower.includes('booking') || lower.includes('payment') || lower.includes('portal')) return 'knowledge-tools';
+    return '/knowledge';
+  }
   if (lower.startsWith('/range')) return '/range';
   if (lower.startsWith('/baseball')) return '/baseball';
   if (lower.startsWith('/tools')) return '/tools';
@@ -1065,6 +1198,18 @@ function handleResponse(text) {
     addMessage('assistant', renderHtml(cannedResponses['tools-search'].initial), true);
     return;
   }
+  // Follow-up: /knowledge — pick area
+  if (awaitingFollow === '/knowledge') {
+    awaitingFollow = null;
+    const lower = text.toLowerCase().trim();
+    let key = 'knowledge-golf';
+    if (lower.includes('1') || lower.includes('golf') || lower.includes('tps') || lower.includes('tm4')) key = 'knowledge-golf';
+    else if (lower.includes('2') || lower.includes('range') || lower.includes('screen')) key = 'knowledge-range';
+    else if (lower.includes('3') || lower.includes('baseball') || lower.includes('b1') || lower.includes('v3')) key = 'knowledge-baseball';
+    else if (lower.includes('4') || lower.includes('tool') || lower.includes('booking') || lower.includes('portal')) key = 'knowledge-tools';
+    addMessage('assistant', renderHtml(cannedResponses[key].initial), true);
+    return;
+  }
   // Follow-up: /loganalyse — pick Golf subsystem
   if (awaitingFollow === '/loganalyse') {
     awaitingFollow = null;
@@ -1092,7 +1237,7 @@ function handleResponse(text) {
   addMessage('assistant', renderHtml(resp.initial), true);
 
   // Queue follow-up for commands that branch
-  if (['/range', '/baseball', '/tools', '/loganalyse'].includes(cmd) || resp.follow) {
+  if (['/range', '/baseball', '/tools', '/loganalyse', '/knowledge'].includes(cmd) || resp.follow) {
     awaitingFollow = cmd;
   }
 }
