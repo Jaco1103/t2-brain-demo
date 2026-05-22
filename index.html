@@ -818,48 +818,70 @@ Ask in plain language — "Have we seen radar misfire after FW 3.2.1?", "USB pow
 Or paste a log snippet and I'll match it against known patterns.`
   },
   'range-screen': {
-    initial: `Screen subsystem — searching the log for display patterns...
+    initial: `Range screen — pulling the screen workflow from the vault.
 
-Looking for: refresh-rate anomalies, GPU driver timestamps, panel timeout events, ghosting fingerprint (sessions > 45 min).
+**Past matches:** <span class="tag tag-known">Pattern</span>
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#R-4415</span><span class="case-card-date">last week · Tom</span></div>
+<div class="case-card-summary">Screen ghosting after 45+ min sessions — Range Performance, panel rev B</div>
+<div class="case-card-fix">✓ Software-recoverable: host app restart every 40 min until TPS 10.3.2 ships. NOT a replacement candidate.</div>
+</div>
 
-**Findings:**
-• <span class="tag tag-bug">Anomaly</span> Display driver timeout at <code>14:18:42</code> — 47 min into session, sustained load
-• Panel rev B (Range Performance SKU)
+**Standard intake (so we don't bounce back to the customer):**
+1. ✅ Photo/video of the issue (ghosting, dead area, flicker)
+2. ✅ Serial number on back of unit
+3. ✅ Software reset already attempted? (factory reset, FW reflash)
+4. ✅ When did it start? After update / impact / out of the blue?
 
-**Vault matches:** <span class="tag tag-known">Known bug</span>
-Same fingerprint as case <code>#R-4415</code> (Tom, last week). Linked to <code>ADO-7689</code> — workaround: restart host app every 40 min until TPS 10.3.2.
+**Vault note — Range/screen.md:**
+> 60% of "screen replacement" tickets last quarter were software-recoverable. The triage tool catches these before escalation.
 
-Want me to <code>/filldevops</code> with this log's data, or pull the customer-facing workaround text?`
+Point the customer at the screen triage tool first: <code>range-screen-triage</code> link — collects everything T2 needs in one pass.
+
+Want me to draft the Zendesk macro reply with the triage link + intake checklist?`
   },
   'range-radar': {
-    initial: `Radar subsystem — searching the log for radar patterns...
+    initial: `Range radar — pulling radar context from the vault.
 
-Looking for: FW version, calibration timestamps, misfire events, drift values >0.05, error codes R2xx.
+**Past matches:** <span class="tag tag-known">Pattern</span>
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#R-4417</span><span class="case-card-date">3 days ago · Jacob</span></div>
+<div class="case-card-summary">Radar misfire / drift on Range Performance after FW 3.2.1 update</div>
+<div class="case-card-fix">✓ Rollback to FW 3.2.0 via host app → recalibrate. R&D confirmed regression. Permanent fix: FW 3.2.2 next sprint.</div>
+</div>
 
-**Findings:**
-• <span class="tag tag-bug">Anomaly</span> Calibration timestamp mismatch at <code>14:22:01</code> — radar reports FW 3.2.1, host expects 3.2.0
-• 3× misfire events between <code>14:22</code> and <code>14:35</code> with error <code>R204</code>
-• Drift value escalated to <code>0.087</code> after FW load — out of spec
+**Things to confirm with the customer:**
+1. ✅ Current FW version (host app → Settings → About)
+2. ✅ When did it start? Update / install / out of the blue?
+3. ✅ Range Performance, Pro, or Lite SKU?
+4. ✅ Ambient temperature at the bay (cold-temp drift is its own pattern)
 
-**Vault matches:** <span class="tag tag-known">Known pattern</span>
-Same fingerprint as case <code>#R-4417</code> (Jacob, 3 days ago). Resolved by rolling back FW to 3.2.0 — R&D confirmed 3.2.1 has a regression on certain radar SKUs.
+**Vault note — Range/radar.md** flags two recurring patterns:
+> FW 3.2.1 regression on Range Performance SKUs → rollback to 3.2.0
+> Cold-temp drift < 5°C on Pro SKU → extended warmup workaround
 
-Want me to <code>/filldevops</code> with the SN + FW data extracted here?`
+Want me to draft the Zendesk reply with the rollback steps?`
   },
   'range-connectivity': {
-    initial: `Connectivity subsystem — searching the log for network patterns...
+    initial: `Range connectivity — pulling network context from the vault.
 
-Looking for: socket timeouts, reconnect attempts, DNS failures, proxy errors, keep-alive drops.
+**Past matches:** <span class="tag tag-known">Pattern</span>
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#R-4322</span><span class="case-card-date">2 weeks ago · Mads</span></div>
+<div class="case-card-summary">Range bay dropping connection every few hours, then auto-recovers</div>
+<div class="case-card-fix">✓ Host sleep > 4h drops keep-alive. Workaround: customer restarts host app. Permanent fix: TPS 10.3.2.</div>
+</div>
 
-**Findings:**
-• <span class="tag tag-bug">Anomaly</span> Keep-alive timeout at <code>14:03:09</code> after 4h host sleep
-• Socket reconnect attempt at <code>14:03:11</code> — no auto-recovery
-• No DNS or proxy errors
+**Things to confirm with the customer:**
+1. ✅ Drop pattern — once a day, every few hours, only after wake-from-sleep?
+2. ✅ Host machine sleep / power settings
+3. ✅ Wi-Fi or wired? Any recent network changes?
+4. ✅ Other bays affected, or just this one?
 
-**Vault matches:** <span class="tag tag-known">Known bug</span>
-Pattern matches <code>ADO-7677</code> — host app sleep > 4h drops keep-alive, no auto-reconnect. Workaround: restart host app (reconnects within 5 sec). Permanent fix: TPS 10.3.2.
+**Vault note — Range/connectivity.md:**
+> 4h-sleep + keep-alive timeout is the #1 recurring pattern. ADO-7677 tracks the permanent fix.
 
-Want me to draft the Zendesk reply with the restart steps?`
+Want me to draft the Zendesk reply with the restart + sleep-settings steps?`
   },
   'radar misfire': {
     initial: `Yes — this pattern has come up before. Searching the vault for "radar misfire after FW 3.2.1"...
