@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T2 Range Brain — Demo</title>
+<title>Support Vault T2 — Demo</title>
 <style>
   :root {
     --bg: #1a1a1a;
@@ -30,13 +30,15 @@
 
   /* Sidebar */
   .sidebar {
-    width: 280px;
+    width: 300px;
     background: var(--panel);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
   }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
   .sidebar-header {
     padding: 16px;
     border-bottom: 1px solid var(--border);
@@ -62,10 +64,47 @@
     color: var(--text-dim);
     margin-bottom: 8px;
   }
-  .vault-tree { font-size: 12px; line-height: 1.8; }
-  .vault-item { color: var(--text-dim); padding-left: 12px; cursor: pointer; }
+  .vault-tree { font-size: 12px; line-height: 1.7; }
+  .vault-item { color: var(--text-dim); padding-left: 22px; cursor: pointer; position: relative; }
+  .vault-item::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 8px;
+    height: 1px;
+    background: #3a3a3a;
+  }
   .vault-item:hover { color: var(--text); }
-  .vault-folder { color: var(--text); font-weight: 500; }
+  .vault-folder {
+    color: var(--text);
+    font-weight: 500;
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vault-folder-icon { color: var(--text-dim); font-size: 10px; width: 10px; }
+  .skill-list {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .skill-item {
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .skill-item:hover {
+    background: var(--panel-2);
+    color: #e0876b;
+    border-left-color: var(--accent);
+  }
   .recent-case {
     font-size: 11px;
     padding: 6px 0;
@@ -105,8 +144,56 @@
     align-items: center;
     justify-content: space-between;
   }
-  .main-title { font-size: 14px; font-weight: 500; }
-  .main-sub { font-size: 12px; color: var(--text-dim); }
+  .main-header-left { display: flex; align-items: center; gap: 12px; }
+  .claude-logo {
+    width: 30px; height: 30px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+  }
+  .main-title {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .model-pill {
+    font-size: 10px;
+    color: var(--text-dim);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-transform: none;
+  }
+  .mcp-pill {
+    font-size: 10px;
+    color: var(--success);
+    background: rgba(74, 157, 106, 0.12);
+    border: 1px solid rgba(74, 157, 106, 0.4);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mcp-pill::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+  .main-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
   .demo-badge {
     background: var(--accent-dim);
     color: var(--accent);
@@ -355,42 +442,73 @@
 <div class="app">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title">T2 Range Brain</div>
-      <div class="sidebar-sub">Obsidian vault · M:\T2-Vault</div>
+      <div class="sidebar-title">Support Vault T2</div>
+      <div class="sidebar-sub">Obsidian vault · M:\T2-Support-Vault</div>
     </div>
     <div class="vault-section">
-      <div class="vault-label">Vault structure</div>
-      <div class="vault-tree">
-        <div class="vault-folder">Cases/</div>
-        <div class="vault-item">camera/</div>
-        <div class="vault-item">radar/</div>
-        <div class="vault-item">tps/</div>
-        <div class="vault-item">connectivity/</div>
-        <div class="vault-folder">Hardware/</div>
-        <div class="vault-item">screen-replacement.md</div>
-        <div class="vault-item">sensor-calibration.md</div>
-        <div class="vault-folder">Escalation-Templates/</div>
-        <div class="vault-item">devops-tps.md</div>
-        <div class="vault-item">devops-radar.md</div>
+      <div class="vault-label">Commands · slash skills</div>
+      <div class="skill-list" id="skillList">
+        <div class="skill-item" data-cmd="/loganalyse">/loganalyse</div>
+        <div class="skill-item" data-cmd="/logcamera">/logcamera</div>
+        <div class="skill-item" data-cmd="/logradar">/logradar</div>
+        <div class="skill-item" data-cmd="/logtps">/logtps</div>
+        <div class="skill-item" data-cmd="/hardware">/hardware</div>
+        <div class="skill-item" data-cmd="/filldevopsTPS">/filldevopsTPS</div>
+        <div class="skill-item" data-cmd="/filldevopsradar">/filldevopsradar</div>
+        <div class="skill-item" data-cmd="/knownbug">/knownbug</div>
+        <div class="skill-item" data-cmd="/cases">/cases</div>
       </div>
     </div>
     <div class="vault-section">
-      <div class="vault-label">Recent T2 analyses</div>
+      <div class="vault-label">Topics &amp; subcategories</div>
+      <div class="vault-tree">
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Camera</div>
+        <div class="vault-item">cold-start-lag.md</div>
+        <div class="vault-item">exposure-issues.md</div>
+        <div class="vault-item">usb-enumeration.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Radar</div>
+        <div class="vault-item">calibration-drift.md</div>
+        <div class="vault-item">firmware-regressions.md</div>
+        <div class="vault-item">misfire-patterns.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>TPS</div>
+        <div class="vault-item">version-handshake.md</div>
+        <div class="vault-item">error-codes.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Hardware</div>
+        <div class="vault-item">screen-replacement.md</div>
+        <div class="vault-item">sensor-calibration.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Connectivity</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Host app</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Customer comms</div>
+      </div>
+    </div>
+    <div class="vault-section">
+      <div class="vault-label">Cases · recent agent runs</div>
       <div class="recent-case"><span class="case-id">#R-4421</span> · Camera lag on cold start · <em>Mads</em></div>
       <div class="recent-case"><span class="case-id">#R-4419</span> · TPS firmware mismatch · <em>Anna</em></div>
       <div class="recent-case"><span class="case-id">#R-4417</span> · Radar misfire after FW 3.2.1 · <em>Jacob</em></div>
       <div class="recent-case"><span class="case-id">#R-4415</span> · Screen ghosting · <em>Tom</em></div>
     </div>
+    <div class="vault-section">
+      <div class="vault-label">Escalation templates</div>
+      <div class="vault-tree">
+        <div class="vault-item">devops-tps.md</div>
+        <div class="vault-item">devops-radar.md</div>
+        <div class="vault-item">devops-camera.md</div>
+      </div>
+    </div>
     <div class="sidebar-footer">
-      <span class="status-dot"></span>Connected · 1,247 indexed notes
+      <span class="status-dot"></span>Connected · 1,247 indexed notes · last sync 4 min ago
     </div>
   </aside>
 
   <main class="main">
     <div class="main-header">
-      <div>
-        <div class="main-title">T2 Brain — Live</div>
-        <div class="main-sub">Shared memory · skills synced with R&D · last indexed 4 min ago</div>
+      <div class="main-header-left">
+        <div class="claude-logo">✦</div>
+        <div>
+          <div class="main-title">Claude <span class="model-pill">Sonnet 4.7</span> <span class="mcp-pill">Obsidian MCP</span></div>
+          <div class="main-sub">Connected to Support Vault T2 · 1,247 indexed notes · skills built with R&D</div>
+        </div>
       </div>
       <span class="demo-badge">Demo</span>
     </div>
@@ -398,9 +516,9 @@
     <div class="messages" id="messages">
       <div class="message">
         <div class="message-role">Claude</div>
-        <div class="message-content">Hey — T2 Brain is online. I can run diagnostic skills against the vault, search past analyses, or fill DevOps escalation templates from logs.
+        <div class="message-content">Hey — Support Vault T2 is loaded over Obsidian MCP. I can run T2 diagnostic skills against the vault, search past analyses, or fill DevOps escalation templates straight from a log.
 
-Try a slash command, or just ask me something in plain language.</div>
+Try a slash command from the left, or just ask me something in plain language.</div>
         <div class="quick-chips">
           <div class="chip" data-prompt="/loganalyse">/loganalyse</div>
           <div class="chip" data-prompt="/filldevopsTPS">/filldevopsTPS</div>
@@ -639,13 +757,20 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
+document.querySelectorAll('.skill-item').forEach(s => {
+  s.addEventListener('click', () => {
+    input.value = s.dataset.cmd;
+    send();
+  });
+});
+
 sendBtn.addEventListener('click', send);
 
 function addMessage(role, html, isHTML = false) {
   const div = document.createElement('div');
   div.className = 'message' + (role === 'user' ? ' user' : '');
   div.innerHTML = `
-    <div class="message-role ${role === 'user' ? 'user' : ''}">${role === 'user' ? 'You · T2 Agent' : 'Claude · T2 Brain'}</div>
+    <div class="message-role ${role === 'user' ? 'user' : ''}">${role === 'user' ? 'You' : 'Claude'}</div>
     <div class="message-content">${isHTML ? html : escapeHtml(html)}</div>
   `;
   messagesEl.appendChild(div);
@@ -657,7 +782,7 @@ function addTyping() {
   div.className = 'message';
   div.id = 'typing-msg';
   div.innerHTML = `
-    <div class="message-role">Claude · T2 Brain</div>
+    <div class="message-role">Claude</div>
     <div class="message-content"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
   `;
   messagesEl.appendChild(div);
