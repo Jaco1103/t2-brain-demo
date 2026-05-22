@@ -486,13 +486,12 @@
     <div class="vault-section">
       <div class="vault-label">Commands · slash skills</div>
       <div class="skill-list" id="skillList">
-        <div class="skill-item" data-cmd="/loganalyse">/loganalyse</div>
-        <div class="skill-item" data-cmd="/logcamera">/logcamera</div>
-        <div class="skill-item" data-cmd="/logradar">/logradar</div>
-        <div class="skill-item" data-cmd="/logtps">/logtps</div>
+        <div class="skill-item" data-cmd="/range">/range</div>
+        <div class="skill-item" data-cmd="/golf">/golf</div>
+        <div class="skill-item" data-cmd="/baseball">/baseball</div>
+        <div class="skill-item" data-cmd="/tools">/tools</div>
         <div class="skill-item" data-cmd="/hardware">/hardware</div>
-        <div class="skill-item" data-cmd="/filldevopsTPS">/filldevopsTPS</div>
-        <div class="skill-item" data-cmd="/filldevopsradar">/filldevopsradar</div>
+        <div class="skill-item" data-cmd="/filldevops">/filldevops</div>
         <div class="skill-item" data-cmd="/knownbug">/knownbug</div>
         <div class="skill-item" data-cmd="/cases">/cases</div>
       </div>
@@ -500,22 +499,22 @@
     <div class="vault-section">
       <div class="vault-label">Topics &amp; subcategories</div>
       <div class="vault-tree">
-        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Camera</div>
-        <div class="vault-item">cold-start-lag.md</div>
-        <div class="vault-item">exposure-issues.md</div>
-        <div class="vault-item">usb-enumeration.md</div>
-        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Radar</div>
-        <div class="vault-item">calibration-drift.md</div>
-        <div class="vault-item">firmware-regressions.md</div>
-        <div class="vault-item">misfire-patterns.md</div>
-        <div class="vault-folder"><span class="vault-folder-icon">▾</span>TPS</div>
-        <div class="vault-item">version-handshake.md</div>
-        <div class="vault-item">error-codes.md</div>
-        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Hardware</div>
-        <div class="vault-item">screen-replacement.md</div>
-        <div class="vault-item">sensor-calibration.md</div>
-        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Connectivity</div>
-        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Host app</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Baseball</div>
+        <div class="vault-item">b1-portable-unit.md</div>
+        <div class="vault-item">v3-stadium-backfield.md</div>
+        <div class="vault-item">data-delivery.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Golf</div>
+        <div class="vault-item">tps.md</div>
+        <div class="vault-item">tm4.md</div>
+        <div class="vault-item">tmio.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Range</div>
+        <div class="vault-item">screen.md</div>
+        <div class="vault-item">radar.md</div>
+        <div class="vault-item">connectivity.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▾</span>Tools</div>
+        <div class="vault-item">booking-payment.md</div>
+        <div class="vault-item">tm-portal.md</div>
+        <div class="vault-folder"><span class="vault-folder-icon">▸</span>Hardware (customer PC)</div>
         <div class="vault-folder"><span class="vault-folder-icon">▸</span>Customer comms</div>
       </div>
     </div>
@@ -558,10 +557,10 @@
 
 Try a slash command from the left, or just ask me something in plain language.</div>
         <div class="quick-chips">
-          <div class="chip" data-prompt="/loganalyse">/loganalyse</div>
-          <div class="chip" data-prompt="/filldevopsTPS">/filldevopsTPS</div>
+          <div class="chip" data-prompt="/range">/range</div>
+          <div class="chip" data-prompt="/filldevops">/filldevops</div>
           <div class="chip" data-prompt="Have we seen radar misfire after FW 3.2.1 before?">Have we seen radar misfire after FW 3.2.1?</div>
-          <div class="chip" data-prompt="/hardware screen">/hardware screen</div>
+          <div class="chip" data-prompt="/knownbug">/knownbug</div>
         </div>
       </div>
     </div>
@@ -581,78 +580,87 @@ Try a slash command from the left, or just ask me something in plain language.</
 
 <script>
 const commands = [
-  { name: '/loganalyse', desc: 'Walks through log analysis by subsystem (camera, radar, TPS, lag)' },
-  { name: '/logcamera', desc: 'Camera-specific log search + diagnostic checklist' },
-  { name: '/logradar', desc: 'Radar log patterns + known firmware-related issues' },
-  { name: '/logtps', desc: 'TPS log analysis + version mismatch detection' },
-  { name: '/hardware', desc: 'Hardware diagnostic flow — screen, sensors, connectivity' },
-  { name: '/filldevopsTPS', desc: 'Auto-fill DevOps escalation template from attached log (SN, FW, TPS version)' },
-  { name: '/filldevopsradar', desc: 'Auto-fill DevOps radar escalation template' },
-  { name: '/knownbug', desc: 'Search ADO known bugs board for matching issues + workarounds' },
+  { name: '/range', desc: 'Range log analysis — Screen, Radar, Connectivity' },
+  { name: '/golf', desc: 'Golf log analysis — TPS, TM4, TMIO' },
+  { name: '/baseball', desc: 'Baseball — B1 Portable Unit, V3 Stadium & Backfield, Data/Delivery' },
+  { name: '/tools', desc: 'Internal tools — Booking & Payment, TM Portal' },
+  { name: '/hardware', desc: 'Customer PC setup — OS, drivers, USB, network' },
+  { name: '/filldevops', desc: 'Auto-fill DevOps escalation template from attached log' },
+  { name: '/knownbug', desc: 'Search ADO known-bug board for matching issues + workarounds' },
   { name: '/cases', desc: 'Semantic search across all past T2 case analyses' },
 ];
 
 const cannedResponses = {
-  '/loganalyse': {
-    initial: `Sure — what subsystem are we looking at? I'll tailor the log search and checklist based on your answer.
+  '/range': {
+    initial: `Which Range subsystem? I'll search the attached log for that subsystem's patterns.
 
-1. Camera (lag, blur, exposure, sync)
-2. Radar (misfires, drift, calibration)
-3. TPS (firmware mismatch, version errors)
-4. Lag / connectivity (network, latency, dropouts)
-5. Other — describe in your own words
+1. **Screen** — display issues, ghosting, touch, refresh
+2. **Radar** — misfires, drift, calibration, firmware
+3. **Connectivity** — network, dropouts, comms
 
-Reply with a number or describe the issue.`,
-    follow: `Got it — radar. Searching for radar-specific patterns in the log...
-
-Looking for: FW version, calibration timestamps, misfire events, drift values >0.05, error codes R2xx.
-
-**Findings:**
-• <span class="tag tag-bug">Anomaly</span> Calibration timestamp mismatch at <code>14:22:01</code> — radar reports FW 3.2.1, host expects 3.2.0
-• 3× misfire events between <code>14:22</code> and <code>14:35</code> with error <code>R204</code>
-• Drift value escalated to <code>0.087</code> after FW load — out of spec
-
-**Vault matches:** <span class="tag tag-known">Known pattern</span>
-Same fingerprint seen in case <code>#R-4417</code> (Jacob, 3 days ago). Resolved by rolling back FW to 3.2.0 — R&D confirmed 3.2.1 has a regression on certain radar SKUs.
-
-Want me to <code>/filldevopsradar</code> with the SN + FW data extracted here?`
+Reply with a number or describe the issue.`
   },
-  '/logcamera': {
-    initial: `Running camera log diagnostic...
+  '/golf': {
+    initial: `Which Golf product? I'll tailor the log search.
 
-**Checking:**
-✓ Cold-start lag patterns
-✓ Frame drops / sync errors
-✓ Exposure auto-adjust failures
-✓ USB enumeration errors
+1. **TPS** — Trackman Performance Studio (host app)
+2. **TM4** — radar unit
+3. **TMIO** — indoor/outdoor
 
-**Top matches in vault:**
-
-<div class="case-card">
-<div class="case-card-header"><span class="case-card-id">#R-4421</span><span class="case-card-date">2 days ago · Mads</span></div>
-<div class="case-card-summary">Camera lag on cold start — first 8 sec of session show 200-400ms latency</div>
-<div class="case-card-fix">✓ Fix: USB controller power management disabled in registry</div>
-</div>
-
-<div class="case-card">
-<div class="case-card-header"><span class="case-card-id">#R-4388</span><span class="case-card-date">3 weeks ago · Tom</span></div>
-<div class="case-card-summary">Similar lag — but caused by antivirus scanning camera buffer</div>
-<div class="case-card-fix">✓ Fix: Excluded Trackman service from real-time AV scan</div>
-</div>
-
-Want full log breakdown or shall I cross-reference with the ADO known-bug board?`
+Reply with a number or describe the issue.`
   },
-  '/filldevopstps': {
-    initial: `Parsing log for DevOps TPS escalation template...
+  '/baseball': {
+    initial: `Which Baseball setup?
 
-Extracted from <code>session_2026-05-22_14-22.log</code>:
+1. **B1 Portable Unit**
+2. **V3 Stadium & Backfield**
+3. **Data & Delivery**
+
+Reply with a number or describe the issue.`
+  },
+  '/tools': {
+    initial: `Which internal tool?
+
+1. **Booking & Payment**
+2. **TM Portal**
+
+Reply with a number or describe the issue.`
+  },
+  '/hardware': {
+    initial: `Customer PC setup triage. What's the symptom area?
+
+1. **OS / driver** — Windows version, GPU/USB driver mismatches
+2. **USB / peripheral** — controller power, port enumeration, cable
+3. **Network** — firewall, proxy, latency to host
+4. **Specs / performance** — CPU, GPU, RAM under spec
+
+Reply with a number or describe what the customer reported.`,
+    follow: `USB / peripheral — pulling the customer PC intake from the vault.
+
+**Standard intake (so we don't bounce back to the customer):**
+
+1. ✅ OS version (Win 10/11 build number)
+2. ✅ USB controller chipset (Intel, AMD, ASMedia)
+3. ✅ Selective suspend setting (enabled / disabled)
+4. ✅ Real-time AV exclusions in place?
+5. ✅ Trackman service running with admin privileges?
+
+**Vault note — Hardware/customer-pc-checklist.md:**
+> 70% of "host app freeze" tickets last quarter resolved by disabling USB selective suspend + adding the AV exclusion. The intake catches both upfront.
+
+Want me to draft the Zendesk macro reply with the checklist link?`
+  },
+  '/filldevops': {
+    initial: `Parsing the attached log for the DevOps escalation template...
+
+Detected: TPS context (firmware/host-app handshake events). Filling the TPS template.
 
 <div class="escalation-template">
 <span class="field-label">Serial Number:</span> <span class="field-val">TRK-RNG-184722</span>
 <span class="field-label">Unit Type:</span> <span class="field-val">Range Performance</span>
 <span class="field-label">Firmware Version:</span> <span class="field-val">3.2.1 (released 2026-04-12)</span>
-<span class="field-label">TPS Version:</span> <span class="field-val">2.4.7-build883</span>
-<span class="field-label">Host App Version:</span> <span class="field-val">8.1.0-stable</span>
+<span class="field-label">TPS Version:</span> <span class="field-val">10.3.1-build883</span>
+<span class="field-label">Host App Version:</span> <span class="field-val">10.3.1-stable</span>
 <span class="field-label">OS:</span> <span class="field-val">Windows 11 23H2 · Build 22631.3447</span>
 <span class="field-label">Region / Bay:</span> <span class="field-val">EU-W · Bay 14</span>
 <span class="field-label">Error Codes:</span> <span class="field-val">TPS-409, TPS-411 (×3)</span>
@@ -662,58 +670,83 @@ Extracted from <code>session_2026-05-22_14-22.log</code>:
 <span class="field-label">Related Vault Cases:</span> <span class="field-val">#R-4419, #R-4402, #R-4388</span>
 </div>
 
-Ready to push to DevOps? I can also draft the Zendesk comment for the main ticket + followers in the same go.`
-  },
-  '/hardware': {
-    initial: `Hardware diagnostic — which subsystem?
-
-1. **Screen** — replacement triage, ghosting, dead pixels, touch issues
-2. **Camera** — physical mount, lens, USB
-3. **Radar** — alignment, calibration, mounting
-4. **Sensors** — TPS sensors, ball detection
-5. **Connectivity** — wiring, network, power
-
-Or paste the symptom and I'll route it.`,
-    follow: `Screen — pulling the replacement workflow from the vault.
-
-**Standard intake checklist (so we don't bounce back to the customer):**
-
-1. ✅ Photo/video of the issue (ghosting, dead area, flicker)
-2. ✅ Serial number on back of unit
-3. ✅ Confirm: software reset already attempted? (factory reset, FW reflash)
-4. ✅ When did it start? After update / impact / out of the blue?
-
-**Vault note — Hardware/screen-replacement.md** says:
-> 60% of "screen replacement" tickets last quarter were actually software-recoverable. The triage tool catches these before escalation.
-
-Recommend pointing the customer at the screen triage tool first: <code>range-screen-triage</code> URL — collects everything T2 needs in one pass.
-
-Want me to draft the Zendesk macro reply with the triage link + intake checklist?`
+Ready to push to DevOps? I can also draft the Zendesk comment for the main ticket in the same go.`
   },
   '/knownbug': {
-    initial: `Searching ADO known-bug board + linked Zendesk known-bugs...
+    initial: `Searching the ADO known-bug board + linked Zendesk known-bugs...
 
 **Matches in the last 30 days:**
 
 <div class="case-card">
-<div class="case-card-header"><span class="case-card-id">ADO-7741</span><span class="case-card-date"><span class="tag tag-known">Active</span> · 12 linked tickets</span></div>
-<div class="case-card-summary">Radar FW 3.2.1 — calibration drift on Range Performance SKUs</div>
-<div class="case-card-fix">→ R&D workaround (posted 2 days ago): Roll back to 3.2.0 via host app · Fix ETA: 3.2.2 in next sprint</div>
+<div class="case-card-header"><span class="case-card-id">ADO-7741</span><span class="case-card-date"><span class="tag tag-known">Workaround</span> · 14 linked tickets</span></div>
+<div class="case-card-summary">The Fairway | TM4 not connecting in TPS version 10.3</div>
+<div class="case-card-fix">→ Workaround (R&D, 2 days ago): Push TM4 firmware update to 4.7.5+ via host app · Permanent fix: TM4 FW 4.8.2 rolling out</div>
 </div>
 
 <div class="case-card">
-<div class="case-card-header"><span class="case-card-id">ADO-7702</span><span class="case-card-date"><span class="tag tag-fixed">Fixed in 8.1.0</span> · 28 linked tickets</span></div>
-<div class="case-card-summary">Camera lag cold-start — USB controller power management</div>
-<div class="case-card-fix">→ Workaround already in vault: registry tweak · Permanent fix shipped in 8.1.0</div>
+<div class="case-card-header"><span class="case-card-id">ADO-7732</span><span class="case-card-date"><span class="tag tag-known">Workaround</span> · 11 linked tickets</span></div>
+<div class="case-card-summary">TPS | TPS 10.3, extended screen view goes black</div>
+<div class="case-card-fix">→ Workaround: mirror displays OR update Intel display driver · Fix: TPS 10.3.2</div>
 </div>
 
 <div class="case-card">
-<div class="case-card-header"><span class="case-card-id">ADO-7689</span><span class="case-card-date"><span class="tag tag-known">Active</span> · 4 linked tickets</span></div>
-<div class="case-card-summary">TPS version handshake — 2.4.7 vs FW 3.2.1</div>
-<div class="case-card-fix">→ No workaround yet · R&D investigating · Last update 6h ago</div>
+<div class="case-card-header"><span class="case-card-id">ADO-7728</span><span class="case-card-date"><span class="tag tag-bug">Investigating</span> · 6 linked tickets</span></div>
+<div class="case-card-summary">B&P | Swing Zone payout issues</div>
+<div class="case-card-fix">→ No workaround yet · R&D actively building hotfix · Last update 4h ago</div>
 </div>
 
-I noticed ADO-7741 was last updated 2 days ago with a workaround — but the 12 linked main tickets in Zendesk haven't been told. Want me to draft the follower comments now?`
+ADO and Zendesk are matched and followed automatically — every linked ticket here surfaces the same workaround inline.`
+  },
+  '/cases': {
+    initial: `Semantic search across past T2 case analyses.
+
+Ask in plain language — "Have we seen radar misfire after FW 3.2.1?", "USB power management cases this quarter", "TM4 connection issues with TPS 10.3" — and I'll find matching analyses with frequency counts.
+
+Or paste a log snippet and I'll match it against known patterns.`
+  },
+  'range-screen': {
+    initial: `Screen subsystem — searching the log for display patterns...
+
+Looking for: refresh-rate anomalies, GPU driver timestamps, panel timeout events, ghosting fingerprint (sessions > 45 min).
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Display driver timeout at <code>14:18:42</code> — 47 min into session, sustained load
+• Panel rev B (Range Performance SKU)
+
+**Vault matches:** <span class="tag tag-known">Known bug</span>
+Same fingerprint as case <code>#R-4415</code> (Tom, last week). Linked to <code>ADO-7689</code> — workaround: restart host app every 40 min until TPS 10.3.2.
+
+Want me to <code>/filldevops</code> with this log's data, or pull the customer-facing workaround text?`
+  },
+  'range-radar': {
+    initial: `Radar subsystem — searching the log for radar patterns...
+
+Looking for: FW version, calibration timestamps, misfire events, drift values >0.05, error codes R2xx.
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Calibration timestamp mismatch at <code>14:22:01</code> — radar reports FW 3.2.1, host expects 3.2.0
+• 3× misfire events between <code>14:22</code> and <code>14:35</code> with error <code>R204</code>
+• Drift value escalated to <code>0.087</code> after FW load — out of spec
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same fingerprint as case <code>#R-4417</code> (Jacob, 3 days ago). Resolved by rolling back FW to 3.2.0 — R&D confirmed 3.2.1 has a regression on certain radar SKUs.
+
+Want me to <code>/filldevops</code> with the SN + FW data extracted here?`
+  },
+  'range-connectivity': {
+    initial: `Connectivity subsystem — searching the log for network patterns...
+
+Looking for: socket timeouts, reconnect attempts, DNS failures, proxy errors, keep-alive drops.
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Keep-alive timeout at <code>14:03:09</code> after 4h host sleep
+• Socket reconnect attempt at <code>14:03:11</code> — no auto-recovery
+• No DNS or proxy errors
+
+**Vault matches:** <span class="tag tag-known">Known bug</span>
+Pattern matches <code>ADO-7677</code> — host app sleep > 4h drops keep-alive, no auto-reconnect. Workaround: restart host app (reconnects within 5 sec). Permanent fix: TPS 10.3.2.
+
+Want me to draft the Zendesk reply with the restart steps?`
   },
   'radar misfire': {
     initial: `Yes — this pattern has come up before. Searching the vault for "radar misfire after FW 3.2.1"...
@@ -838,11 +871,14 @@ function escapeHtml(s) {
 
 function detectCommand(text) {
   const lower = text.toLowerCase().trim();
-  if (lower.startsWith('/loganalyse')) return '/loganalyse';
-  if (lower.startsWith('/logcamera')) return '/logcamera';
-  if (lower.startsWith('/filldevopstps') || lower.startsWith('/filldevops')) return '/filldevopstps';
+  if (lower.startsWith('/range')) return '/range';
+  if (lower.startsWith('/golf')) return '/golf';
+  if (lower.startsWith('/baseball')) return '/baseball';
+  if (lower.startsWith('/tools')) return '/tools';
   if (lower.startsWith('/hardware')) return '/hardware';
+  if (lower.startsWith('/filldevops')) return '/filldevops';
   if (lower.startsWith('/knownbug')) return '/knownbug';
+  if (lower.startsWith('/cases')) return '/cases';
   if (lower.includes('radar') && (lower.includes('misfire') || lower.includes('3.2.1'))) return 'radar misfire';
   if (lower.includes('seen') && lower.includes('before')) return 'radar misfire';
   return 'default';
@@ -863,31 +899,38 @@ function send() {
   }, 700 + Math.random() * 500);
 }
 
+function renderHtml(s) {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+}
+
 function handleResponse(text) {
-  // Follow-up handling
-  if (awaitingFollow === '/loganalyse') {
+  // Follow-up handling — /range branches by subsystem pick
+  if (awaitingFollow === '/range') {
     awaitingFollow = null;
-    addMessage('assistant', cannedResponses['/loganalyse'].follow, true);
+    const lower = text.toLowerCase().trim();
+    let key = 'range-radar';
+    if (lower.includes('1') || lower.includes('screen')) key = 'range-screen';
+    else if (lower.includes('3') || lower.includes('connectivity') || lower.includes('network')) key = 'range-connectivity';
+    else if (lower.includes('2') || lower.includes('radar')) key = 'range-radar';
+    addMessage('assistant', renderHtml(cannedResponses[key].initial), true);
     return;
   }
   if (awaitingFollow === '/hardware') {
     awaitingFollow = null;
-    addMessage('assistant', cannedResponses['/hardware'].follow, true);
+    addMessage('assistant', renderHtml(cannedResponses['/hardware'].follow), true);
     return;
   }
 
   const cmd = detectCommand(text);
   const resp = cannedResponses[cmd] || cannedResponses['default'];
 
-  // Render initial response — convert simple markdown
-  const html = resp.initial
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>');
-  addMessage('assistant', html, true);
+  addMessage('assistant', renderHtml(resp.initial), true);
 
-  // If this command has a follow-up, queue it
-  if (resp.follow) {
+  // Queue follow-up for commands that branch
+  if (cmd === '/range' || resp.follow) {
     awaitingFollow = cmd;
   }
 }
