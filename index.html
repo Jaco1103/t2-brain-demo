@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T2 Range Brain — Demo</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --panel: #232323;
+    --panel-2: #2a2a2a;
+    --border: #333;
+    --text: #e8e8e8;
+    --text-dim: #8a8a8a;
+    --accent: #d97757;
+    --accent-dim: #5a3a2c;
+    --success: #4a9d6a;
+    --warn: #d4a548;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .app { display: flex; height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .sidebar-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .vault-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .vault-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .vault-tree { font-size: 12px; line-height: 1.8; }
+  .vault-item { color: var(--text-dim); padding-left: 12px; cursor: pointer; }
+  .vault-item:hover { color: var(--text); }
+  .vault-folder { color: var(--text); font-weight: 500; }
+  .recent-case {
+    font-size: 11px;
+    padding: 6px 0;
+    border-bottom: 1px solid #2a2a2a;
+    color: var(--text-dim);
+  }
+  .recent-case:last-child { border-bottom: none; }
+  .recent-case .case-id { color: var(--accent); font-weight: 500; }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* Main chat */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  .main-header {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .main-title { font-size: 14px; font-weight: 500; }
+  .main-sub { font-size: 12px; color: var(--text-dim); }
+  .demo-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .message { margin-bottom: 20px; max-width: 800px; }
+  .message-role {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .message-role.user { color: var(--accent); }
+  .message-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .message.user .message-content {
+    background: var(--accent-dim);
+    border-color: #6b4534;
+    color: #f5e6dc;
+  }
+  .message-content code {
+    background: #1a1a1a;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .message-content pre {
+    background: #1a1a1a;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin: 8px 0;
+    font-size: 12px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  .message-content pre code { background: none; padding: 0; color: var(--text); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .tag-bug { background: #4a2a2a; color: #e88; }
+  .tag-known { background: #2a3a4a; color: #8bd; }
+  .tag-fixed { background: #2a4a2a; color: #8d8; }
+
+  /* Input area */
+  .input-area {
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    background: var(--panel);
+    position: relative;
+  }
+  .input-wrapper {
+    display: flex;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+    align-items: center;
+  }
+  .input-wrapper:focus-within { border-color: var(--accent); }
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    resize: none;
+    outline: none;
+    line-height: 1.4;
+    max-height: 120px;
+  }
+  .send-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn:hover:not(:disabled) { background: #c66643; }
+
+  .hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .hint kbd {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  /* Slash command picker */
+  .cmd-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 24px;
+    right: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    display: none;
+  }
+  .cmd-picker.show { display: block; }
+  .cmd-header {
+    padding: 8px 14px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+  }
+  .cmd-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cmd-item:last-child { border-bottom: none; }
+  .cmd-item:hover, .cmd-item.active { background: var(--panel-2); }
+  .cmd-name { color: var(--accent); font-family: ui-monospace, monospace; font-size: 13px; font-weight: 500; }
+  .cmd-desc { font-size: 12px; color: var(--text-dim); margin-left: 12px; flex: 1; }
+  .cmd-shortcut { font-size: 10px; color: var(--text-dim); }
+
+  /* Quick start chips */
+  .quick-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    max-width: 800px;
+  }
+  .chip {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    gap: 4px;
+    padding: 6px 0;
+  }
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    animation: typing 1.4s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .escalation-template {
+    background: #1a1a1a;
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .escalation-template .field-label { color: var(--text-dim); }
+  .escalation-template .field-val { color: var(--success); font-weight: 500; }
+
+  .stats-row { display: flex; gap: 16px; margin: 10px 0; }
+  .stat-box {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    flex: 1;
+  }
+  .stat-num { font-size: 22px; font-weight: 600; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  .case-card {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 6px 0;
+  }
+  .case-card-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+  .case-card-id { color: var(--accent); font-weight: 500; }
+  .case-card-date { color: var(--text-dim); }
+  .case-card-summary { font-size: 13px; line-height: 1.5; }
+  .case-card-fix { font-size: 12px; color: var(--success); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">T2 Range Brain</div>
+      <div class="sidebar-sub">Obsidian vault · M:\T2-Vault</div>
+    </div>
+    <div class="vault-section">
+      <div class="vault-label">Vault structure</div>
+      <div class="vault-tree">
+        <div class="vault-folder">Cases/</div>
+        <div class="vault-item">camera/</div>
+        <div class="vault-item">radar/</div>
+        <div class="vault-item">tps/</div>
+        <div class="vault-item">connectivity/</div>
+        <div class="vault-folder">Hardware/</div>
+        <div class="vault-item">screen-replacement.md</div>
+        <div class="vault-item">sensor-calibration.md</div>
+        <div class="vault-folder">Escalation-Templates/</div>
+        <div class="vault-item">devops-tps.md</div>
+        <div class="vault-item">devops-radar.md</div>
+      </div>
+    </div>
+    <div class="vault-section">
+      <div class="vault-label">Recent T2 analyses</div>
+      <div class="recent-case"><span class="case-id">#R-4421</span> · Camera lag on cold start · <em>Mads</em></div>
+      <div class="recent-case"><span class="case-id">#R-4419</span> · TPS firmware mismatch · <em>Anna</em></div>
+      <div class="recent-case"><span class="case-id">#R-4417</span> · Radar misfire after FW 3.2.1 · <em>Jacob</em></div>
+      <div class="recent-case"><span class="case-id">#R-4415</span> · Screen ghosting · <em>Tom</em></div>
+    </div>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>Connected · 1,247 indexed notes
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title">T2 Brain — Live</div>
+        <div class="main-sub">Shared memory · skills synced with R&D · last indexed 4 min ago</div>
+      </div>
+      <span class="demo-badge">Demo</span>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="message">
+        <div class="message-role">Claude</div>
+        <div class="message-content">Hey — T2 Brain is online. I can run diagnostic skills against the vault, search past analyses, or fill DevOps escalation templates from logs.
+
+Try a slash command, or just ask me something in plain language.</div>
+        <div class="quick-chips">
+          <div class="chip" data-prompt="/loganalyse">/loganalyse</div>
+          <div class="chip" data-prompt="/filldevopsTPS">/filldevopsTPS</div>
+          <div class="chip" data-prompt="Have we seen radar misfire after FW 3.2.1 before?">Have we seen radar misfire after FW 3.2.1?</div>
+          <div class="chip" data-prompt="/hardware screen">/hardware screen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="cmd-picker" id="cmdPicker">
+        <div class="cmd-header">Skills · built with R&D</div>
+      </div>
+      <div class="input-wrapper">
+        <textarea id="input" placeholder="Type a message, or / for skills..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn">Send</button>
+      </div>
+      <div class="hint">Press <kbd>/</kbd> for slash commands · <kbd>Enter</kbd> to send · This is a demo — responses are pre-canned to show the experience</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const commands = [
+  { name: '/loganalyse', desc: 'Walks through log analysis by subsystem (camera, radar, TPS, lag)' },
+  { name: '/logcamera', desc: 'Camera-specific log search + diagnostic checklist' },
+  { name: '/logradar', desc: 'Radar log patterns + known firmware-related issues' },
+  { name: '/logtps', desc: 'TPS log analysis + version mismatch detection' },
+  { name: '/hardware', desc: 'Hardware diagnostic flow — screen, sensors, connectivity' },
+  { name: '/filldevopsTPS', desc: 'Auto-fill DevOps escalation template from attached log (SN, FW, TPS version)' },
+  { name: '/filldevopsradar', desc: 'Auto-fill DevOps radar escalation template' },
+  { name: '/knownbug', desc: 'Search ADO known bugs board for matching issues + workarounds' },
+  { name: '/cases', desc: 'Semantic search across all past T2 case analyses' },
+];
+
+const cannedResponses = {
+  '/loganalyse': {
+    initial: `Sure — what subsystem are we looking at? I'll tailor the log search and checklist based on your answer.
+
+1. Camera (lag, blur, exposure, sync)
+2. Radar (misfires, drift, calibration)
+3. TPS (firmware mismatch, version errors)
+4. Lag / connectivity (network, latency, dropouts)
+5. Other — describe in your own words
+
+Reply with a number or describe the issue.`,
+    follow: `Got it — radar. Searching for radar-specific patterns in the log...
+
+Looking for: FW version, calibration timestamps, misfire events, drift values >0.05, error codes R2xx.
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Calibration timestamp mismatch at <code>14:22:01</code> — radar reports FW 3.2.1, host expects 3.2.0
+• 3× misfire events between <code>14:22</code> and <code>14:35</code> with error <code>R204</code>
+• Drift value escalated to <code>0.087</code> after FW load — out of spec
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same fingerprint seen in case <code>#R-4417</code> (Jacob, 3 days ago). Resolved by rolling back FW to 3.2.0 — R&D confirmed 3.2.1 has a regression on certain radar SKUs.
+
+Want me to <code>/filldevopsradar</code> with the SN + FW data extracted here?`
+  },
+  '/logcamera': {
+    initial: `Running camera log diagnostic...
+
+**Checking:**
+✓ Cold-start lag patterns
+✓ Frame drops / sync errors
+✓ Exposure auto-adjust failures
+✓ USB enumeration errors
+
+**Top matches in vault:**
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#R-4421</span><span class="case-card-date">2 days ago · Mads</span></div>
+<div class="case-card-summary">Camera lag on cold start — first 8 sec of session show 200-400ms latency</div>
+<div class="case-card-fix">✓ Fix: USB controller power management disabled in registry</div>
+</div>
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#R-4388</span><span class="case-card-date">3 weeks ago · Tom</span></div>
+<div class="case-card-summary">Similar lag — but caused by antivirus scanning camera buffer</div>
+<div class="case-card-fix">✓ Fix: Excluded Trackman service from real-time AV scan</div>
+</div>
+
+Want full log breakdown or shall I cross-reference with the ADO known-bug board?`
+  },
+  '/filldevopstps': {
+    initial: `Parsing log for DevOps TPS escalation template...
+
+Extracted from <code>session_2026-05-22_14-22.log</code>:
+
+<div class="escalation-template">
+<span class="field-label">Serial Number:</span> <span class="field-val">TRK-RNG-184722</span>
+<span class="field-label">Unit Type:</span> <span class="field-val">Range Performance</span>
+<span class="field-label">Firmware Version:</span> <span class="field-val">3.2.1 (released 2026-04-12)</span>
+<span class="field-label">TPS Version:</span> <span class="field-val">2.4.7-build883</span>
+<span class="field-label">Host App Version:</span> <span class="field-val">8.1.0-stable</span>
+<span class="field-label">OS:</span> <span class="field-val">Windows 11 23H2 · Build 22631.3447</span>
+<span class="field-label">Region / Bay:</span> <span class="field-val">EU-W · Bay 14</span>
+<span class="field-label">Error Codes:</span> <span class="field-val">TPS-409, TPS-411 (×3)</span>
+<span class="field-label">Symptom Cluster:</span> <span class="field-val">Firmware/TPS version handshake mismatch</span>
+<span class="field-label">First Seen:</span> <span class="field-val">2026-05-21 09:14:22 UTC</span>
+<span class="field-label">Frequency:</span> <span class="field-val">7 sessions affected in 48h</span>
+<span class="field-label">Related Vault Cases:</span> <span class="field-val">#R-4419, #R-4402, #R-4388</span>
+</div>
+
+Ready to push to DevOps? I can also draft the Zendesk comment for the main ticket + followers in the same go.`
+  },
+  '/hardware': {
+    initial: `Hardware diagnostic — which subsystem?
+
+1. **Screen** — replacement triage, ghosting, dead pixels, touch issues
+2. **Camera** — physical mount, lens, USB
+3. **Radar** — alignment, calibration, mounting
+4. **Sensors** — TPS sensors, ball detection
+5. **Connectivity** — wiring, network, power
+
+Or paste the symptom and I'll route it.`,
+    follow: `Screen — pulling the replacement workflow from the vault.
+
+**Standard intake checklist (so we don't bounce back to the customer):**
+
+1. ✅ Photo/video of the issue (ghosting, dead area, flicker)
+2. ✅ Serial number on back of unit
+3. ✅ Confirm: software reset already attempted? (factory reset, FW reflash)
+4. ✅ When did it start? After update / impact / out of the blue?
+
+**Vault note — Hardware/screen-replacement.md** says:
+> 60% of "screen replacement" tickets last quarter were actually software-recoverable. The triage tool catches these before escalation.
+
+Recommend pointing the customer at the screen triage tool first: <code>range-screen-triage</code> URL — collects everything T2 needs in one pass.
+
+Want me to draft the Zendesk macro reply with the triage link + intake checklist?`
+  },
+  '/knownbug': {
+    initial: `Searching ADO known-bug board + linked Zendesk known-bugs...
+
+**Matches in the last 30 days:**
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">ADO-7741</span><span class="case-card-date"><span class="tag tag-known">Active</span> · 12 linked tickets</span></div>
+<div class="case-card-summary">Radar FW 3.2.1 — calibration drift on Range Performance SKUs</div>
+<div class="case-card-fix">→ R&D workaround (posted 2 days ago): Roll back to 3.2.0 via host app · Fix ETA: 3.2.2 in next sprint</div>
+</div>
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">ADO-7702</span><span class="case-card-date"><span class="tag tag-fixed">Fixed in 8.1.0</span> · 28 linked tickets</span></div>
+<div class="case-card-summary">Camera lag cold-start — USB controller power management</div>
+<div class="case-card-fix">→ Workaround already in vault: registry tweak · Permanent fix shipped in 8.1.0</div>
+</div>
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">ADO-7689</span><span class="case-card-date"><span class="tag tag-known">Active</span> · 4 linked tickets</span></div>
+<div class="case-card-summary">TPS version handshake — 2.4.7 vs FW 3.2.1</div>
+<div class="case-card-fix">→ No workaround yet · R&D investigating · Last update 6h ago</div>
+</div>
+
+I noticed ADO-7741 was last updated 2 days ago with a workaround — but the 12 linked main tickets in Zendesk haven't been told. Want me to draft the follower comments now?`
+  },
+  'radar misfire': {
+    initial: `Yes — this pattern has come up before. Searching the vault for "radar misfire after FW 3.2.1"...
+
+<div class="stats-row">
+<div class="stat-box"><div class="stat-num">7</div><div class="stat-label">Past cases</div></div>
+<div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Last 30 days</div></div>
+<div class="stat-box"><div class="stat-num">100%</div><div class="stat-label">Resolved</div></div>
+</div>
+
+**The pattern:** All 7 cases involved Range Performance units that received FW 3.2.1 between April 12 and now. Misfires cluster in the first 10-15 minutes after firmware load.
+
+**The fix in all 7:** Roll back to FW 3.2.0 via host app → recalibrate → confirm drift back within spec.
+
+**R&D status (ADO-7741, updated 2 days ago):**
+> Confirmed regression in 3.2.1 radar driver. Fix queued for 3.2.2, ETA next sprint. Workaround: rollback to 3.2.0.
+
+**Most recent case:** <code>#R-4417</code> — Jacob, 3 days ago. Full analysis pinned in the vault.
+
+Want me to pull the customer-facing rollback instructions from the vault, or open the DevOps escalation template?`
+  },
+  'default': {
+    initial: `I'd handle this against the vault + log heuristics in a real deployment. For the demo, try one of the slash commands or the quick-start chips above — those show the experience end to end.`
+  }
+};
+
+const messagesEl = document.getElementById('messages');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const cmdPicker = document.getElementById('cmdPicker');
+
+let awaitingFollow = null;
+
+function renderCommandPicker(filter = '') {
+  const filtered = commands.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+  if (filtered.length === 0) {
+    cmdPicker.classList.remove('show');
+    return;
+  }
+  cmdPicker.innerHTML = '<div class="cmd-header">Skills · built with R&D</div>' +
+    filtered.map((c, i) => `
+      <div class="cmd-item${i === 0 ? ' active' : ''}" data-cmd="${c.name}">
+        <span class="cmd-name">${c.name}</span>
+        <span class="cmd-desc">${c.desc}</span>
+      </div>
+    `).join('');
+  cmdPicker.classList.add('show');
+  cmdPicker.querySelectorAll('.cmd-item').forEach(item => {
+    item.addEventListener('click', () => {
+      input.value = item.dataset.cmd + ' ';
+      cmdPicker.classList.remove('show');
+      input.focus();
+    });
+  });
+}
+
+input.addEventListener('input', () => {
+  const val = input.value;
+  if (val.startsWith('/')) {
+    renderCommandPicker(val);
+  } else {
+    cmdPicker.classList.remove('show');
+  }
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    input.value = chip.dataset.prompt;
+    send();
+  });
+});
+
+sendBtn.addEventListener('click', send);
+
+function addMessage(role, html, isHTML = false) {
+  const div = document.createElement('div');
+  div.className = 'message' + (role === 'user' ? ' user' : '');
+  div.innerHTML = `
+    <div class="message-role ${role === 'user' ? 'user' : ''}">${role === 'user' ? 'You · T2 Agent' : 'Claude · T2 Brain'}</div>
+    <div class="message-content">${isHTML ? html : escapeHtml(html)}</div>
+  `;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="message-role">Claude · T2 Brain</div>
+    <div class="message-content"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+  `;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function detectCommand(text) {
+  const lower = text.toLowerCase().trim();
+  if (lower.startsWith('/loganalyse')) return '/loganalyse';
+  if (lower.startsWith('/logcamera')) return '/logcamera';
+  if (lower.startsWith('/filldevopstps') || lower.startsWith('/filldevops')) return '/filldevopstps';
+  if (lower.startsWith('/hardware')) return '/hardware';
+  if (lower.startsWith('/knownbug')) return '/knownbug';
+  if (lower.includes('radar') && (lower.includes('misfire') || lower.includes('3.2.1'))) return 'radar misfire';
+  if (lower.includes('seen') && lower.includes('before')) return 'radar misfire';
+  return 'default';
+}
+
+function send() {
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  cmdPicker.classList.remove('show');
+
+  addTyping();
+  setTimeout(() => {
+    removeTyping();
+    handleResponse(text);
+  }, 700 + Math.random() * 500);
+}
+
+function handleResponse(text) {
+  // Follow-up handling
+  if (awaitingFollow === '/loganalyse') {
+    awaitingFollow = null;
+    addMessage('assistant', cannedResponses['/loganalyse'].follow, true);
+    return;
+  }
+  if (awaitingFollow === '/hardware') {
+    awaitingFollow = null;
+    addMessage('assistant', cannedResponses['/hardware'].follow, true);
+    return;
+  }
+
+  const cmd = detectCommand(text);
+  const resp = cannedResponses[cmd] || cannedResponses['default'];
+
+  // Render initial response — convert simple markdown
+  const html = resp.initial
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+  addMessage('assistant', html, true);
+
+  // If this command has a follow-up, queue it
+  if (resp.follow) {
+    awaitingFollow = cmd;
+  }
+}
+</script>
+</body>
+</html>
