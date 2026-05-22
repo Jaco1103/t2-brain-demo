@@ -487,9 +487,9 @@
       <div class="vault-label">Commands · slash skills</div>
       <div class="skill-list" id="skillList">
         <div class="skill-item" data-cmd="/range">/range</div>
-        <div class="skill-item" data-cmd="/golf">/golf</div>
         <div class="skill-item" data-cmd="/baseball">/baseball</div>
         <div class="skill-item" data-cmd="/tools">/tools</div>
+        <div class="skill-item" data-cmd="/loganalyse">/loganalyse</div>
         <div class="skill-item" data-cmd="/hardware">/hardware</div>
         <div class="skill-item" data-cmd="/filldevops">/filldevops</div>
         <div class="skill-item" data-cmd="/knownbug">/knownbug</div>
@@ -507,6 +507,9 @@
         <div class="vault-item">tps.md</div>
         <div class="vault-item">tm4.md</div>
         <div class="vault-item">tmio.md</div>
+        <div class="vault-item">swingspeed-cam.md</div>
+        <div class="vault-item">ids-cam.md</div>
+        <div class="vault-item">econ-cam.md</div>
         <div class="vault-folder"><span class="vault-folder-icon">▾</span>Range</div>
         <div class="vault-item">screen.md</div>
         <div class="vault-item">radar.md</div>
@@ -558,7 +561,7 @@
 Try a slash command from the left, or just ask me something in plain language.</div>
         <div class="quick-chips">
           <div class="chip" data-prompt="/range">/range</div>
-          <div class="chip" data-prompt="/filldevops">/filldevops</div>
+          <div class="chip" data-prompt="/loganalyse">/loganalyse</div>
           <div class="chip" data-prompt="Have we seen radar misfire after FW 3.2.1 before?">Have we seen radar misfire after FW 3.2.1?</div>
           <div class="chip" data-prompt="/knownbug">/knownbug</div>
         </div>
@@ -580,10 +583,10 @@ Try a slash command from the left, or just ask me something in plain language.</
 
 <script>
 const commands = [
-  { name: '/range', desc: 'Range log analysis — Screen, Radar, Connectivity' },
-  { name: '/golf', desc: 'Golf log analysis — TPS, TM4, TMIO' },
-  { name: '/baseball', desc: 'Baseball — B1 Portable Unit, V3 Stadium & Backfield, Data/Delivery' },
-  { name: '/tools', desc: 'Internal tools — Booking & Payment, TM Portal' },
+  { name: '/range', desc: 'Range scope — narrows vault search to Range topics' },
+  { name: '/baseball', desc: 'Baseball scope — narrows to B1 Portable, V3 Stadium, Data/Delivery' },
+  { name: '/tools', desc: 'Tools scope — narrows to Booking & Payment, TM Portal' },
+  { name: '/loganalyse', desc: 'Golf log analysis — TPS, TM4, TMIO, Swingspeed/IDS/e-con cameras' },
   { name: '/hardware', desc: 'Customer PC setup — OS, drivers, USB, network' },
   { name: '/filldevops', desc: 'Auto-fill DevOps escalation template from attached log' },
   { name: '/knownbug', desc: 'Search ADO known-bug board for matching issues + workarounds' },
@@ -592,39 +595,149 @@ const commands = [
 
 const cannedResponses = {
   '/range': {
-    initial: `Which Range subsystem? I'll search the attached log for that subsystem's patterns.
+    initial: `Range scope active.
 
-1. **Screen** — display issues, ghosting, touch, refresh
-2. **Radar** — misfires, drift, calibration, firmware
-3. **Connectivity** — network, dropouts, comms
+Type your question — I'll search the vault narrowed to Range topics (Screen, Radar, Connectivity, past Range cases). No log parsing needed; this is straight vault context.
 
-Reply with a number or describe the issue.`
-  },
-  '/golf': {
-    initial: `Which Golf product? I'll tailor the log search.
-
-1. **TPS** — Trackman Performance Studio (host app)
-2. **TM4** — radar unit
-3. **TMIO** — indoor/outdoor
-
-Reply with a number or describe the issue.`
+Examples: "customer's screen is ghosting after 45 min", "radar drift after firmware update", "bay dropping connection every few hours".`
   },
   '/baseball': {
-    initial: `Which Baseball setup?
+    initial: `Baseball scope active.
 
-1. **B1 Portable Unit**
-2. **V3 Stadium & Backfield**
-3. **Data & Delivery**
+Type your question — I'll search the vault narrowed to Baseball (B1 Portable Unit, V3 Stadium & Backfield, Data & Delivery, past Baseball cases).
+
+Examples: "B1 won't pair via Bluetooth", "V3 backfield camera offset after bump", "data delivery latency to client portal".`
+  },
+  '/tools': {
+    initial: `Tools scope active.
+
+Type your question — I'll search the vault narrowed to internal Tools (Booking & Payment, TM Portal, past Tools cases).
+
+Examples: "booking link returns 500", "TM Portal SSO login loop", "Stripe payment intent stuck pending".`
+  },
+  '/loganalyse': {
+    initial: `Golf log analysis — which subsystem? I'll search the attached log for that subsystem's specific patterns.
+
+1. **TPS** — host app, firmware/version handshake, error codes
+2. **TM4** — radar unit (calibration, drift, misfire)
+3. **TMIO** — indoor/outdoor mode switches
+4. **Swingspeed camera** — high-FPS capture, USB bandwidth
+5. **IDS camera** — uEye driver, enumeration
+6. **e-con camera** — SDK init, device claim
 
 Reply with a number or describe the issue.`
   },
-  '/tools': {
-    initial: `Which internal tool?
+  'baseball-search': {
+    initial: `Searching the Baseball vault for that query...
 
-1. **Booking & Payment**
-2. **TM Portal**
+**Top matches:**
 
-Reply with a number or describe the issue.`
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#B-3204</span><span class="case-card-date">5 days ago · Anna</span></div>
+<div class="case-card-summary">B1 Portable — Bluetooth pairing fails when host has stale BT cache</div>
+<div class="case-card-fix">✓ Fix: clear host Bluetooth cache (Settings → Bluetooth → remove + re-pair). 3-min customer call.</div>
+</div>
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#B-3198</span><span class="case-card-date">2 weeks ago · Tom</span></div>
+<div class="case-card-summary">V3 Backfield — camera offset after physical bump, recalibration drift</div>
+<div class="case-card-fix">✓ Fix: run V3 calibration wizard from TPS · vault doc Baseball/v3-stadium-backfield.md</div>
+</div>
+
+Open either case for full analysis, or refine the question.`
+  },
+  'tools-search': {
+    initial: `Searching the Tools vault for that query...
+
+**Top matches:**
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#T-1842</span><span class="case-card-date">1 week ago · Mads</span></div>
+<div class="case-card-summary">Booking & Payment — Stripe intent stuck "requires_action" after 3DS challenge</div>
+<div class="case-card-fix">✓ Fix: trigger manual confirm via Stripe dashboard, then re-poll from TM Portal · vault doc Tools/booking-payment.md</div>
+</div>
+
+<div class="case-card">
+<div class="case-card-header"><span class="case-card-id">#T-1838</span><span class="case-card-date">2 weeks ago · Anna</span></div>
+<div class="case-card-summary">TM Portal — SSO login redirect loop when 3rd-party cookies blocked</div>
+<div class="case-card-fix">✓ Fix: enable 3rd-party cookies for *.trackman.com · vault doc Tools/tm-portal.md</div>
+</div>
+
+Open either case for full analysis, or refine the question.`
+  },
+  'loganalyse-tps': {
+    initial: `TPS log analysis — searching for handshake and version events...
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Version handshake mismatch at <code>09:14:22</code> — TPS reports 10.3.1, host expects 10.3.0
+• 3× TPS-409 errors clustered within 90 seconds
+• Error sequence consistent with known regression
+
+**Vault matches:** <span class="tag tag-known">Known bug</span>
+Same fingerprint as case <code>#R-4419</code> (Anna, last week). Linked to <code>ADO-7732</code> — workaround: customer mirrors displays OR updates Intel display driver. Permanent fix: TPS 10.3.2.
+
+Want me to <code>/filldevops</code> with the version data?`
+  },
+  'loganalyse-tm4': {
+    initial: `TM4 log analysis — searching for radar patterns...
+
+Looking for: FW version, calibration timestamps, misfire events, drift values >0.05, error codes R2xx.
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Calibration timestamp mismatch at <code>14:22:01</code> — TM4 reports FW 3.2.1, host expects 3.2.0
+• 3× misfire events between <code>14:22</code> and <code>14:35</code> with error <code>R204</code>
+• Drift value escalated to <code>0.087</code> after FW load — out of spec
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same fingerprint as case <code>#R-4417</code> (Jacob, 3 days ago). Resolved by rolling back FW to 3.2.0 — R&D confirmed 3.2.1 has a regression on certain TM4 SKUs.
+
+Want me to <code>/filldevops</code> with the SN + FW data?`
+  },
+  'loganalyse-tmio': {
+    initial: `TMIO log analysis — searching for indoor/outdoor mode transitions...
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Mode switch stalled at <code>11:42:18</code> — indoor → outdoor stuck mid-handshake
+• Ambient sensor reading 42 lux at switch time (threshold: 80)
+• 2× retry attempts before manual reboot
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Matches <code>#R-4388</code> — TMIO mode switch needs ambient ≥80 lux for sensor sync. Workaround: increase bay lighting before mode switch. Permanent fix: lower threshold in TPS 10.3.2.
+
+Want me to draft the customer-facing instructions?`
+  },
+  'loganalyse-swingspeed': {
+    initial: `Swingspeed camera log analysis — searching for high-FPS capture events...
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> Frame drop rate 8.4% (threshold: 2%) — consistent with USB bandwidth saturation
+• Capture latency spiked 14× during session
+• USB topology shows Swingspeed cam sharing hub with TM4
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same as case <code>#R-4376</code> — Swingspeed cam on shared USB hub. Workaround: move Swingspeed cam to a dedicated USB-C port directly on the motherboard (not via hub).`
+  },
+  'loganalyse-ids': {
+    initial: `IDS camera log analysis — searching for uEye driver events...
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> uEye driver enumeration failed at <code>14:02:18</code> — camera not detected for first 6s of session
+• Driver version: 4.96.2 (latest: 4.97.1)
+• Cold-start delay pattern matches
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same as case <code>#R-4402</code> — IDS driver 4.96.x has cold-start enumeration delay on certain motherboards. Workaround: upgrade to uEye 4.97.1. Permanent fix bundled with TPS 10.3.2.`
+  },
+  'loganalyse-econ': {
+    initial: `e-con camera log analysis — searching for e-con SDK events...
+
+**Findings:**
+• <span class="tag tag-bug">Anomaly</span> e-con SDK init returned -2 (device busy) at <code>10:55:01</code>
+• 4× retry attempts before successful claim
+• Conflict source: Windows Camera app holding handle
+
+**Vault matches:** <span class="tag tag-known">Known pattern</span>
+Same as case <code>#R-4391</code> — e-con cam held by Windows Camera app under Windows 11 background-running policy. Workaround: disable Windows Camera app background access in Settings → Apps → Camera.`
   },
   '/hardware': {
     initial: `Customer PC setup triage. What's the symptom area?
@@ -872,9 +985,9 @@ function escapeHtml(s) {
 function detectCommand(text) {
   const lower = text.toLowerCase().trim();
   if (lower.startsWith('/range')) return '/range';
-  if (lower.startsWith('/golf')) return '/golf';
   if (lower.startsWith('/baseball')) return '/baseball';
   if (lower.startsWith('/tools')) return '/tools';
+  if (lower.startsWith('/loganalyse')) return '/loganalyse';
   if (lower.startsWith('/hardware')) return '/hardware';
   if (lower.startsWith('/filldevops')) return '/filldevops';
   if (lower.startsWith('/knownbug')) return '/knownbug';
@@ -907,17 +1020,44 @@ function renderHtml(s) {
 }
 
 function handleResponse(text) {
-  // Follow-up handling — /range branches by subsystem pick
+  // Follow-up: /range scope hint — keyword-detect Screen / Radar / Connectivity
   if (awaitingFollow === '/range') {
     awaitingFollow = null;
     const lower = text.toLowerCase().trim();
     let key = 'range-radar';
-    if (lower.includes('1') || lower.includes('screen')) key = 'range-screen';
-    else if (lower.includes('3') || lower.includes('connectivity') || lower.includes('network')) key = 'range-connectivity';
-    else if (lower.includes('2') || lower.includes('radar')) key = 'range-radar';
+    if (lower.includes('screen') || lower.includes('ghost') || lower.includes('display') || lower.includes('touch')) key = 'range-screen';
+    else if (lower.includes('connect') || lower.includes('network') || lower.includes('dropout') || lower.includes('drop')) key = 'range-connectivity';
+    else if (lower.includes('radar') || lower.includes('drift') || lower.includes('misfire') || lower.includes('calibration')) key = 'range-radar';
     addMessage('assistant', renderHtml(cannedResponses[key].initial), true);
     return;
   }
+  // Follow-up: /baseball scope hint
+  if (awaitingFollow === '/baseball') {
+    awaitingFollow = null;
+    addMessage('assistant', renderHtml(cannedResponses['baseball-search'].initial), true);
+    return;
+  }
+  // Follow-up: /tools scope hint
+  if (awaitingFollow === '/tools') {
+    awaitingFollow = null;
+    addMessage('assistant', renderHtml(cannedResponses['tools-search'].initial), true);
+    return;
+  }
+  // Follow-up: /loganalyse — pick Golf subsystem
+  if (awaitingFollow === '/loganalyse') {
+    awaitingFollow = null;
+    const lower = text.toLowerCase().trim();
+    let key = 'loganalyse-tm4';
+    if (lower.includes('1') || lower.startsWith('tps') || lower.includes(' tps')) key = 'loganalyse-tps';
+    else if (lower.includes('2') || lower.includes('tm4')) key = 'loganalyse-tm4';
+    else if (lower.includes('3') || lower.includes('tmio')) key = 'loganalyse-tmio';
+    else if (lower.includes('4') || lower.includes('swingspeed') || lower.includes('swing')) key = 'loganalyse-swingspeed';
+    else if (lower.includes('5') || lower.includes('ids')) key = 'loganalyse-ids';
+    else if (lower.includes('6') || lower.includes('e-con') || lower.includes('econ')) key = 'loganalyse-econ';
+    addMessage('assistant', renderHtml(cannedResponses[key].initial), true);
+    return;
+  }
+  // Follow-up: /hardware
   if (awaitingFollow === '/hardware') {
     awaitingFollow = null;
     addMessage('assistant', renderHtml(cannedResponses['/hardware'].follow), true);
@@ -930,7 +1070,7 @@ function handleResponse(text) {
   addMessage('assistant', renderHtml(resp.initial), true);
 
   // Queue follow-up for commands that branch
-  if (cmd === '/range' || resp.follow) {
+  if (['/range', '/baseball', '/tools', '/loganalyse'].includes(cmd) || resp.follow) {
     awaitingFollow = cmd;
   }
 }
